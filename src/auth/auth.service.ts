@@ -5,8 +5,6 @@ import * as bcrypt from 'bcrypt';
 import { LogInDto, VerifyEmailDto } from 'src/users/dto/LogInDto';
 import { MailService } from 'src/mail/mail.service';
 import { JwtService } from '@nestjs/jwt';
-import { VerifiedLogInDto } from 'src/users/dto/VerifiedLogInDto';
-import { VisitorId } from 'src/users/entities/visitorId.entity';
 import { OtpDto } from 'src/users/dto/OtpDto';
 
 @Injectable()

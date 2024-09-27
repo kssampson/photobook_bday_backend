@@ -1,4 +1,4 @@
-import { ConsoleLogger, Injectable, NotFoundException } from '@nestjs/common';
+import { ConsoleLogger, Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -18,6 +18,7 @@ export class UsersService {
     private readonly mailService: MailService,
     @InjectRepository(OTP)
     private otpRepository: Repository<OTP>,
+    @Inject(forwardRef(() => AuthService))
     private authService: AuthService,
   ){}
 

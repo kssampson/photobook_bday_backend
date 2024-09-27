@@ -9,6 +9,8 @@ import { UsersModule } from './users/users.module';
 import typeorm from './config/typeorm';
 import { User } from './users/entities/user.entity';
 import { MailModule } from './mail/mail.module';
+import { Letter } from './users/entities/letter.entity';
+import { Photo } from './users/entities/photo.entity';
 
 @Module({
   imports: [
@@ -20,7 +22,7 @@ import { MailModule } from './mail/mail.module';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => configService.get('typeorm')
     }),
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Photo, Letter]),
     AuthModule,
     UsersModule,
     MailModule,

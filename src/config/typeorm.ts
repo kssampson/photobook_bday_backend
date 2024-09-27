@@ -16,7 +16,7 @@ const config = {
     //where we put the migrations when generate them, then where we look for them to run
     migrations: ["dist/migrations/*{.ts,.js}"],
     autoLoadEntities: true,
-    synchronize: true,
+    synchronize: true, //
     logging: true,
 }
 
