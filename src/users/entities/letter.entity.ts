@@ -8,7 +8,10 @@ export class Letter {
   id: number;
 
   @Column()
-  content: string;
+  letterContent: string;
+
+  @Column('jsonb')
+  deltaContent: any
 
   @OneToOne(() => User, (user) => user.letter)
   @JoinColumn()

@@ -75,7 +75,6 @@ export class AuthService {
 
       // If 2FA is complete
       const createTokenWithUser = await this.createAccessToken(user);
-      console.log()
       const { token} = createTokenWithUser;
       return { success: true, message: 'You are successfully logged in. Welcome!', token}
 
@@ -139,5 +138,8 @@ export class AuthService {
       username: user.username,
       email: user.email,
     }
+  }
+  async saveLetter(id: number, letterContent: string, deltaContent: any){
+    return await this.userService.saveLetter(id, letterContent, deltaContent);
   }
 }

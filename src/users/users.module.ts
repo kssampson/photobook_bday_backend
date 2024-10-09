@@ -8,10 +8,11 @@ import { MailService } from 'src/mail/mail.service';
 import { MailModule } from 'src/mail/mail.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { AuthService } from 'src/auth/auth.service';
+import { Letter } from './entities/letter.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, VisitorId, OTP]),
+    TypeOrmModule.forFeature([User, VisitorId, OTP, Letter]),
     MailModule,
   ],
   providers: [UsersService, AuthService],
