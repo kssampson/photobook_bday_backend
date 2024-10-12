@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Request, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto } from 'src/users/dto/SignUpDto';
 import { LogInDto, VerifyEmailDto } from 'src/users/dto/LogInDto';
@@ -8,6 +8,7 @@ import { OtpDto } from 'src/users/dto/OtpDto';
 import { AuthGuard } from './guards/auth.guard';
 import { SaveLetterDto } from 'src/users/dto/SaveLetterDto';
 import { UsersService } from 'src/users/users.service';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('auth')
 export class AuthController {
@@ -45,9 +46,6 @@ export class AuthController {
   async saveLetter(@Body() saveLetterDto: SaveLetterDto) {
     const { id, letterContent, deltaContent } = saveLetterDto;
     const stringifiedDeltaContent = JSON.stringify(deltaContent);
-    // console.log('deltaContentStringified: ', stringifiedDeltaContent)
-    // const parsedDeltaContent = JSON.parse(stringifiedDeltaContent);
-    // console.log('deltaContentParsed: ', parsedDeltaContent)
     return await this.authService.saveLetter(id, letterContent, stringifiedDeltaContent);
   // if (deltaContent.ops && Array.isArray(deltaContent.ops)) {
   //   console.log('deltaContent.ops:', deltaContent.ops);
@@ -61,6 +59,16 @@ export class AuthController {
     console.log(`Operation ${index}:`, op);
   });
   */
+  }
+  @UseGuards(AuthGuard)
+  @Post('save-photo')
+  @UseInterceptors(FilesInterceptor('files'))
+  uploadFile(
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @Body('id') id: string
+    ) {
+      //id comes in as a str, convert when querying db w/ typeORM
+    console.log(files);
   }
 
   @UseGuards(AuthGuard)

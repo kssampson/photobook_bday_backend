@@ -6,8 +6,11 @@ export class Photo {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  url: string;
+  @Column({ nullable: true })
+  url1: string;
+
+  @Column({ nullable: true })
+  url2: string;
 
   @ManyToOne(() => User, (user) => user.photos)
   user: User;
