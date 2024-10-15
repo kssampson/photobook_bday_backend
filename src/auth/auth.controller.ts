@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query, Request, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, Req, Request, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto } from 'src/users/dto/SignUpDto';
 import { LogInDto, VerifyEmailDto } from 'src/users/dto/LogInDto';
@@ -63,12 +63,25 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Post('save-photo')
   @UseInterceptors(FilesInterceptor('files'))
-  uploadFile(
+  async uploadFile(
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Body('id') id: string
     ) {
       //id comes in as a str, convert when querying db w/ typeORM
-    console.log(files);
+      let userId = Number(id);
+      console.log('typeof files: ', typeof files);
+      return await this.userService.savePhoto(userId, files)
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('get-photos')
+  async getPhotos(@Request() req) {
+    return await this.userService.getPhotos(req.user.id)
+  }
+  @UseGuards(AuthGuard)
+  @Delete('delete-photo')
+  async deletePhoto(@Req() req) {
+
   }
 
   @UseGuards(AuthGuard)

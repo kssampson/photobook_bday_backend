@@ -1,13 +1,15 @@
 import sanitizeHtml from 'sanitize-html';
 // import Quill from 'quill';
 import { EntityManager } from 'typeorm';
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { VisitorId } from './entities/visitorId.entity';
 import { MailService } from 'src/mail/mail.service';
 import { Letter } from './entities/letter.entity';
+import * as AWS from 'aws-sdk';
+import { Photo } from './entities/photo.entity';
 
 @Injectable()
 export class UsersService {
@@ -19,7 +21,17 @@ export class UsersService {
     @InjectRepository(Letter)
     private letterRepository: Repository<Letter>,
     private readonly mailService: MailService,
-  ){}
+    @InjectRepository(Photo)
+    private photoRepository: Repository<Photo>
+  ){
+    this.s3 = new AWS.S3({
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      region: process.env.BUCKET_REGION,
+    });
+  }
+
+  private s3: AWS.S3;
 
   async signUp(username: string, email: string, password: string, visitorId: string) {
     const userExists = await this.checkUserExists(email, visitorId);
@@ -68,24 +80,7 @@ export class UsersService {
     }
   }
 
-  // async sanitizeDelta(deltaContent: any) {
-  //   const quill = new Quill(document.createElement('div'));
-  //   quill.setContents(deltaContent);
-
-  //   const deltaAsHtml = quill.root.innerHTML;
-
-  //   const sanitizedHtml = sanitizeHtml(deltaAsHtml, {
-  //     //****def check an make sure you're getting everything you need to keep from the delta. This logic could screw everything up, becareful!!!***
-  //     allowedTags: ['b', 'i', 'u', 'strong', 'p', 'br'],
-  //   });
-
-  //   quill.root.innerHTML = sanitizedHtml;
-  //   return quill.getContents();
-  // }
-
   async saveLetter(id: number, letterContent: string, stringifiedDeltaContent: JSON) {
-    // const sanitizedDelta = await this.sanitizeDelta(deltaContent);
-    //find the user by their id
     const user = await this.findOneWithId(id);
     if (!user) {
       throw new NotFoundException('User not found!')
@@ -104,8 +99,6 @@ export class UsersService {
       await entityManager.save(Letter, letter);
     })
 
-
-    //save the letterContent, deltaContent at the correct user, will have to match the entity naming conventions, etc.
     return { success: true, message: "Letter saved successfully." }
   }
 
@@ -115,17 +108,111 @@ export class UsersService {
       relations: ['letter'],
     });
     if (!user) {
-      console.log('no user!')
       throw new UnauthorizedException('User not found!')
     }
-
-    console.log('user: ', JSON.parse(user.letter.deltaContent))
 
     const letterContent = user.letter.letterContent;
     const deltaContent = JSON.parse(user.letter.deltaContent);
 
-    // console.log('deltaContent in getLetter user.service: ', deltaContent)
     return { success: true, message: "Letter retrieved", letterContent, deltaContent }
   }
+
+  async savePhoto(id: number, files: Array<Express.Multer.File>) {
+
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['photos'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const s3 = new AWS.S3({
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      region: process.env.BUCKET_REGION,
+    });
+
+    const photo = new Photo();
+    photo.user = user;
+
+    const file1 = files[0];
+    const file1Key = `user-${id}/file1-${file1.originalname}`;
+    const file1Params = {
+      Bucket: process.env.BUCKET_NAME,
+      Key: file1Key,
+      Body: file1.buffer,
+      ContentType: file1.mimetype,
+    };
+
+    try {
+      const file1Upload = await s3.upload(file1Params).promise();
+      photo.url1 = file1Upload.Location;
+      console.log('File 1 uploaded successfully: ', file1Upload.Location);
+    } catch (error) {
+      console.error('Error uploading file 1 to S3: ', error);
+      throw new Error('File 1 failed to upload');
+    }
+
+    if (files[1]) {
+      const file2 = files[1];
+      const file2Key = `user-${id}/file2-${file2.originalname}`;
+      const file2Params = {
+        Bucket: process.env.BUCKET_NAME,
+        Key: file2Key,
+        Body: file2.buffer,
+        ContentType: file2.mimetype,
+      };
+
+      try {
+        const file2Upload = await s3.upload(file2Params).promise();
+        photo.url2 = file2Upload.Location; //I want this to be a permantly signed url
+        console.log('File 2 uploaded successfully: ', file2Upload.Location);
+      } catch (error) {
+        console.error('Error uploading file 2 to S3: ', error);
+        throw new Error('File 2 failed to upload');
+      }
+    }
+
+    try {
+      await this.photoRepository.save(photo);
+      return { success: true, message: 'Photos uploaded and saved successfully!' };
+    } catch (error) {
+      console.error('Error saving photo entity:', error);
+      throw new Error('Error saving photo information to database');
+    }
+  }
+  private signUrl(key: string): string {
+    const params = {
+      Bucket: process.env.BUCKET_NAME,
+      Key: key,
+      Expires: 60 * 60,
+    };
+    return this.s3.getSignedUrl('getObject', params);
+  }
+
+  async getPhotos(id: number) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['photos'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const photos = await this.photoRepository.find({
+      where: { user: user },
+    });
+
+    // Check if photos exist and sign their URLs
+    if (photos) {
+      return photos;
+    }
+    return null;
+  }
+
 }
+
 

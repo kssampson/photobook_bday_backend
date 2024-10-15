@@ -20,7 +20,7 @@ export class User {
   @OneToMany(() => VisitorId, (visitorId) => visitorId.user)
   visitorIds: VisitorId[];
 
-  @OneToMany(() => Photo, (photo) => photo.user)
+  @OneToOne(() => Photo, (photo) => photo.user)
   photos: Photo[];
 
   @OneToOne(() => Letter, (letter) => letter.user)
