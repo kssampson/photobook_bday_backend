@@ -21,7 +21,7 @@ export class AuthController {
     const result = await this.authService.signUp(signUpDto);
     return result;
   }
-  // @UseGuards(AuthGuard)
+
   @Post('log-in')
   async logIn(@Body() logInDto: LogInDto) {
     const { username, password, visitorId } = logInDto;
@@ -47,18 +47,6 @@ export class AuthController {
     const { id, letterContent, deltaContent } = saveLetterDto;
     const stringifiedDeltaContent = JSON.stringify(deltaContent);
     return await this.authService.saveLetter(id, letterContent, stringifiedDeltaContent);
-  // if (deltaContent.ops && Array.isArray(deltaContent.ops)) {
-  //   console.log('deltaContent.ops:', deltaContent.ops);
-  // } else {
-  //   console.log('deltaContent.ops is not an array or maybe doesn\'t exist');
-  // }
-
-  //see each operation:
-  /*
-  deltaContent.ops.forEach((op, index) => {
-    console.log(`Operation ${index}:`, op);
-  });
-  */
   }
   @UseGuards(AuthGuard)
   @Post('save-photo')
@@ -67,7 +55,7 @@ export class AuthController {
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Body('id') id: string
     ) {
-      //id comes in as a str, convert when querying db w/ typeORM
+      //id comes in as str from formData
       let userId = Number(id);
       console.log('typeof files: ', typeof files);
       return await this.userService.savePhoto(userId, files)
