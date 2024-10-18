@@ -11,9 +11,9 @@ const config = {
     username: `${process.env.DATABASE_USERNAME}`,
     password: `${process.env.DATABASE_PASSWORD}`,
     database: `${process.env.DATABASE_NAME}`,
-    // ssl: {
-    //     rejectUnauthorized: true
-    // },
+    ssl: {
+        rejectUnauthorized: false
+    },
     //entities will be in dist -- any folder within dist. In those folders, files will end in .ts or .js
     entities: ["dist/*.entity{.ts,.js}"],
     //where we put the migrations when generate them, then where we look for them to run
