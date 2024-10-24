@@ -1,7 +1,6 @@
 import sanitizeHtml from 'sanitize-html';
-// import Quill from 'quill';
 import { EntityManager } from 'typeorm';
-import { Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -58,6 +57,16 @@ export class UsersService {
       where: { visitorId },
     });
     if (existingByVisitorId) {
+      // //if they exist, count how many times this visitorId occurs in the db
+      // console.log('existingByVisitorId: ', existingByVisitorId)
+      // const visitorIDCount = await this.visitorIdRepository.count({
+      //   where: {visitorId}
+      // })
+      // console.log('visitorIdCount: ', visitorIDCount)
+      // //if more than two times, then more than two people have signed up on that visitorId
+      // if (visitorIDCount && visitorIDCount >= 2) {
+      //   return {success: false, message: 'The visitor id has been used too many times'}
+      // }
       return {success: false, message: 'Hmm, something\'s not quite right. Have you already signed up?'}
     }
     return null;
@@ -149,9 +158,7 @@ export class UsersService {
     try {
       const file1Upload = await s3.upload(file1Params).promise();
       photo.url1 = file1Upload.Location;
-      console.log('File 1 uploaded successfully: ', file1Upload.Location);
     } catch (error) {
-      console.error('Error uploading file 1 to S3: ', error);
       throw new Error('File 1 failed to upload');
     }
 
@@ -168,7 +175,6 @@ export class UsersService {
       try {
         const file2Upload = await s3.upload(file2Params).promise();
         photo.url2 = file2Upload.Location; //I want this to be a permantly signed url
-        console.log('File 2 uploaded successfully: ', file2Upload.Location);
       } catch (error) {
         console.error('Error uploading file 2 to S3: ', error);
         throw new Error('File 2 failed to upload');

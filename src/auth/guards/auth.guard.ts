@@ -22,18 +22,12 @@ export class AuthGuard implements CanActivate {
       const payload = await this.jswtService.verifyAsync(token, { secret: jwtConstants.secret });
       request['user'] = payload;
     } catch (err) {
-      // console.log('error verifying token: ', err.message)
       throw new UnauthorizedException();
     }
     return true;
   }
   private extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    if (type === 'Bearer') {
-      console.log('Extracted token');
-    } else {
-      console.log('No Bearer token found');
-    }
     return type === 'Bearer' ? token : undefined
   }
 }

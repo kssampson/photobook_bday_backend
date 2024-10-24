@@ -79,7 +79,6 @@ export class AuthService {
       return { success: true, message: 'You are successfully logged in. Welcome!', token}
 
     } catch (error) {
-      console.log('Error in user.servcie login catch block')
       return { success: false, message: error.message };
     }
 
@@ -128,7 +127,6 @@ export class AuthService {
   async createAccessToken(user: User) {
     const payload = { username: user.username, sub: user.id };
     const token = await this.jwtService.signAsync(payload, { secret: jwtConstants.secret });
-    console.log('created token. token: ', token)
     return { ...user, token}
   }
   async getUserProfile(email: string) {

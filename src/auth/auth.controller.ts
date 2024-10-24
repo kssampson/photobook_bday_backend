@@ -37,7 +37,6 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Get('get-user')
   async getUserProfile(@Request() req) {
-    console.log('getUserProfile. req: ', req)
     return await this.authService.getUserProfile(req.user.email)
   }
 
@@ -57,7 +56,6 @@ export class AuthController {
     ) {
       //id comes in as str from formData
       let userId = Number(id);
-      console.log('typeof files: ', typeof files);
       return await this.userService.savePhoto(userId, files)
   }
 
