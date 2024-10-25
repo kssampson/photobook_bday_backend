@@ -14,7 +14,7 @@ const config = {
     database: `${process.env.DATABASE_NAME}`,
     ssl: {
         rejectUnauthorized: true,
-        ca: [fs.readFileSync(`${process.env.DATABASE_CA_CERT}`)],
+        ca: fs.readFileSync(`${process.env.DATABASE_CA_CERT}`).toString(),
     },
     //entities will be in dist -- any folder within dist. In those folders, files will end in .ts or .js
     entities: ["dist/*.entity{.ts,.js}"],
