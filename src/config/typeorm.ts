@@ -12,7 +12,7 @@ const config = {
     password: `${process.env.DATABASE_PASSWORD}`,
     database: `${process.env.DATABASE_NAME}`,
     ssl: {
-        rejectUnauthorized: false
+        rejectUnauthorized: true
     },
     //entities will be in dist -- any folder within dist. In those folders, files will end in .ts or .js
     entities: ["dist/*.entity{.ts,.js}"],

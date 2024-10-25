@@ -41,6 +41,7 @@ export class AuthService {
         where: { username },
         relations: ['visitorIds', 'visitorIds.otp']
       });
+      console.log('user in login: ', user)
       //they might not be a user at all, but we don't want to return extra info to potential bad actors
       if (!user) {
         return { success: false, invalidUsername: true, message: 'Invalid username!' };
@@ -124,13 +125,15 @@ export class AuthService {
     await this.logIn(visitorRecord.user.username, visitorRecord.user.password, visitorRecord.visitorId)
     return { success: true, message: 'OTP verified successfully. Two-factor authentication is now complete.' };
   }
-  async createAccessToken(user: User) {
+  async createAccessToken(user) {
+    console.log('user in createAccessToken: ', user)
     const payload = { username: user.username, sub: user.id };
     const token = await this.jwtService.signAsync(payload, { secret: jwtConstants.secret });
+    console.log('token in createAccessToken: ', token)
     return { ...user, token}
   }
-  async getUserProfile(email: string) {
-    const user = await this.userService.findOneWithEmail(email);
+  async getUserProfile(id: number) {
+    const user = await this.userService.findOneWithId(id);
     return {
       id: user.id,
       username: user.username,

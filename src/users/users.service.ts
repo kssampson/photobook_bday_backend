@@ -56,19 +56,19 @@ export class UsersService {
     const existingByVisitorId = await this.visitorIdRepository.findOne({
       where: { visitorId },
     });
-    if (existingByVisitorId) {
-      // //if they exist, count how many times this visitorId occurs in the db
-      // console.log('existingByVisitorId: ', existingByVisitorId)
-      // const visitorIDCount = await this.visitorIdRepository.count({
-      //   where: {visitorId}
-      // })
-      // console.log('visitorIdCount: ', visitorIDCount)
-      // //if more than two times, then more than two people have signed up on that visitorId
-      // if (visitorIDCount && visitorIDCount >= 2) {
-      //   return {success: false, message: 'The visitor id has been used too many times'}
-      // }
-      return {success: false, message: 'Hmm, something\'s not quite right. Have you already signed up?'}
-    }
+    // if (existingByVisitorId) {
+    //   // //if they exist, count how many times this visitorId occurs in the db
+    //   // console.log('existingByVisitorId: ', existingByVisitorId)
+    //   // const visitorIDCount = await this.visitorIdRepository.count({
+    //   //   where: {visitorId}
+    //   // })
+    //   // console.log('visitorIdCount: ', visitorIDCount)
+    //   // //if more than two times, then more than two people have signed up on that visitorId
+    //   // if (visitorIDCount && visitorIDCount >= 2) {
+    //   //   return {success: false, message: 'The visitor id has been used too many times'}
+    //   // }
+    //   return {success: false, message: 'Hmm, something\'s not quite right. Have you already signed up?'}
+    // }
     return null;
   }
   async findOneWithEmail(email: string) {
@@ -94,8 +94,8 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('User not found!')
     }
-    this.userRepository.manager.transaction(async (entityManager: EntityManager) => {
-      let letter = await entityManager.findOne(Letter, { where: { user: { id: user.id } } });
+
+      let letter = await this.letterRepository.findOneOrFail({ where: { user: { id: user.id } } });
 
       if (!letter) {
         letter = new Letter();
@@ -105,14 +105,14 @@ export class UsersService {
       letter.letterContent = letterContent;
       letter.deltaContent = stringifiedDeltaContent;
 
-      await entityManager.save(Letter, letter);
-    })
+      await this.letterRepository.save(letter);
+
 
     return { success: true, message: "Letter saved successfully." }
   }
 
   async getLetter(id: number) {
-    const user = await this.userRepository.findOne({
+    const user = await this.userRepository.findOneOrFail({
       where: { id: id },
       relations: ['letter'],
     });
@@ -160,25 +160,6 @@ export class UsersService {
       photo.url1 = file1Upload.Location;
     } catch (error) {
       throw new Error('File 1 failed to upload');
-    }
-
-    if (files[1]) {
-      const file2 = files[1];
-      const file2Key = `user-${id}/file2-${file2.originalname}`;
-      const file2Params = {
-        Bucket: process.env.BUCKET_NAME,
-        Key: file2Key,
-        Body: file2.buffer,
-        ContentType: file2.mimetype,
-      };
-
-      try {
-        const file2Upload = await s3.upload(file2Params).promise();
-        photo.url2 = file2Upload.Location; //I want this to be a permantly signed url
-      } catch (error) {
-        console.error('Error uploading file 2 to S3: ', error);
-        throw new Error('File 2 failed to upload');
-      }
     }
 
     try {

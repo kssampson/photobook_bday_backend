@@ -9,9 +9,6 @@ export class Photo {
   @Column({ nullable: true })
   url1: string;
 
-  @Column({ nullable: true })
-  url2: string;
-
   @OneToOne(() => User, (user) => user.photos)
   @JoinColumn()
   user: User;

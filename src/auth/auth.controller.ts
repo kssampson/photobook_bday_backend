@@ -37,7 +37,8 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Get('get-user')
   async getUserProfile(@Request() req) {
-    return await this.authService.getUserProfile(req.user.email)
+    const id = req.user.sub;
+    return await this.authService.getUserProfile(id)
   }
 
   @UseGuards(AuthGuard)
@@ -62,7 +63,8 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Get('get-photos')
   async getPhotos(@Request() req) {
-    return await this.userService.getPhotos(req.user.id)
+    const id = req.user.sub;
+    return await this.userService.getPhotos(id)
   }
   @UseGuards(AuthGuard)
   @Delete('delete-photo')
@@ -73,6 +75,7 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Get('get-letter')
   async getLetter(@Request() req) {
-    return await this.userService.getLetter(req.user.id);
+    const id = req.user.sub;
+    return await this.userService.getLetter(id);
   }
 }
