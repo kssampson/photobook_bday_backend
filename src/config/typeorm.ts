@@ -1,6 +1,7 @@
 import { registerAs } from "@nestjs/config";
 import { config as dotenvConfig } from 'dotenv';
 import { DataSource, DataSourceOptions } from "typeorm";
+import * as fs from 'fs';
 
 dotenvConfig();
 
@@ -13,7 +14,7 @@ const config = {
     database: `${process.env.DATABASE_NAME}`,
     ssl: {
         rejectUnauthorized: true,
-        ca: `${process.env.DATABASE_CA_CERT}`,
+        ca: fs.readFileSync(`${process.env.DATABASE_CA_CERT}`),
     },
     //entities will be in dist -- any folder within dist. In those folders, files will end in .ts or .js
     entities: ["dist/*.entity{.ts,.js}"],
