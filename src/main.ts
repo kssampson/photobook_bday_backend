@@ -10,8 +10,9 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
     transform: true
   }));
+  const allowedOrigin = process.env.FRONTEND_IP_ADDRESS || 'https://memoriesforher.com';
   app.enableCors({
-    origin: `${process.env.FRONTEND_IP_ADDRESS}`, // Replace when frontend URL is set up in instance
+    origin: allowedOrigin, // Replace when frontend URL is set up in instance
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type, Authorization', //uncomment before push for deploy
   });
