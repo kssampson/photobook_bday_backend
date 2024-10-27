@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { SignUpDto } from 'src/users/dto/SignUpDto';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
-import { LogInDto} from 'src/users/dto/LogInDto';
 import { MailService } from 'src/mail/mail.service';
 import { JwtService } from '@nestjs/jwt';
 import { OtpDto } from 'src/users/dto/OtpDto';
@@ -41,7 +40,6 @@ export class AuthService {
         where: { username },
         relations: ['visitorIds', 'visitorIds.otp']
       });
-      console.log('user in login: ', user)
       //they might not be a user at all, but we don't want to return extra info to potential bad actors
       if (!user) {
         return { success: false, invalidUsername: true, message: 'Invalid username!' };
@@ -126,10 +124,8 @@ export class AuthService {
     return { success: true, message: 'OTP verified successfully. Two-factor authentication is now complete.' };
   }
   async createAccessToken(user) {
-    console.log('user in createAccessToken: ', user)
     const payload = { username: user.username, sub: user.id };
     const token = await this.jwtService.signAsync(payload, { secret: jwtConstants.secret });
-    console.log('token in createAccessToken: ', token)
     return { ...user, token}
   }
   async getUserProfile(id: number) {
