@@ -95,7 +95,7 @@ export class UsersService {
       throw new NotFoundException('User not found!')
     }
 
-      let letter = await this.letterRepository.findOneOrFail({ where: { user: { id: user.id } } });
+      let letter = await this.letterRepository.findOne({ where: { user: { id: user.id } } });
 
       if (!letter) {
         letter = new Letter();
