@@ -17,6 +17,9 @@ export class User {
   @Column()
   password: string;
 
+  @Column({default: null})
+  relation: string;
+
   @OneToMany(() => VisitorId, (visitorId) => visitorId.user)
   visitorIds: VisitorId[];
 

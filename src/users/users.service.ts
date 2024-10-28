@@ -164,12 +164,56 @@ export class UsersService {
 
     try {
       await this.photoRepository.save(photo);
-      return { success: true, message: 'Photos uploaded and saved successfully!' };
+      return { success: true, message: 'Photos uploaded and saved successfully!', url1: photo.url1 };
     } catch (error) {
       console.error('Error saving photo entity:', error);
       throw new Error('Error saving photo information to database');
     }
   }
+
+  async deletePhoto(id: number) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['photos'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const photo = await this.photoRepository.find({
+      where: {user: user}
+    })
+
+    if (!photo[0]) {
+      throw new NotFoundException('Photo not found');
+    }
+
+    //Photo[] was desgined an array of objects to save more photos if desired in future implementation. Use photo[0] for the single photo currently allowed
+    const key = photo[0].url1.split('/').pop();
+    const deleteParams = {
+      Bucket: process.env.BUCKET_NAME,
+      Key: `user-${user.id}/${key}`
+    }
+
+    //delete from bucket
+    try {
+      await this.s3.deleteObject(deleteParams).promise();
+    } catch (error) {
+      console.error('Error deleting file from S3:', error);
+        throw new Error('Failed to delete photo from S3');
+    }
+
+    //delete the photo record in the database
+    try {
+      await this.photoRepository.delete(photo[0])
+    } catch (error) {
+      console.error('Error deleting photo from database:', error);
+      throw new Error('Failed to delete photo from database');
+    }
+    return { success: true, message: 'photo deleted from database' }
+  }
+
   private signUrl(key: string): string {
     const params = {
       Bucket: process.env.BUCKET_NAME,

@@ -68,8 +68,9 @@ export class AuthController {
   }
   @UseGuards(AuthGuard)
   @Delete('delete-photo')
-  async deletePhoto(@Req() req) {
-
+  async deletePhoto(@Request() req) {
+    const id = req.user.sub;
+    return await this.userService.deletePhoto(id);
   }
 
   @UseGuards(AuthGuard)
