@@ -4,6 +4,12 @@ import * as sanitizeHtml from 'sanitize-html';
 
 
 export class SignUpDto {
+
+  @IsNotEmpty()
+  @IsString()
+  @Transform(({ value }) => sanitizeHtml(value))
+  relation: string
+
   @IsNotEmpty()
   @IsString()
   @Transform(({ value }) => sanitizeHtml(value))

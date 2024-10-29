@@ -32,13 +32,13 @@ export class UsersService {
 
   private s3: AWS.S3;
 
-  async signUp(username: string, email: string, password: string, visitorId: string) {
+  async signUp(relation: string, username: string, email: string, password: string, visitorId: string) {
     const userExists = await this.checkUserExists(email, visitorId);
     if (userExists) {
       return userExists;
     }
     //Create a new user and save user to user
-    const newUser = this.userRepository.create({ username, email, password});
+    const newUser = this.userRepository.create({ relation, username, email, password});
     const savedUser = await this.userRepository.save(newUser);
     //Create and save the visitorId record
     const newVisitorId = this.visitorIdRepository.create({ visitorId, user: savedUser })

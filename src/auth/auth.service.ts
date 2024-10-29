@@ -28,8 +28,8 @@ export class AuthService {
 
   async signUp(signUpDto: SignUpDto) {
     signUpDto.password = await bcrypt.hash(signUpDto.password, 10);
-    const { username, email, password, visitorId } = signUpDto;
-    const result = await this.userService.signUp(username, email, password, visitorId);
+    const { relation, username, email, password, visitorId } = signUpDto;
+    const result = await this.userService.signUp(relation, username, email, password, visitorId);
     return result;
   }
 
