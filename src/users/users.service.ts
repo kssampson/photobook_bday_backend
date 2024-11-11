@@ -244,6 +244,28 @@ export class UsersService {
     return null;
   }
 
+  async getSubmissions(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const [users, total] = await this.userRepository.findAndCount({
+      skip: skip,
+      take: limit,
+      relations: ['photos', 'letter']
+    })
+
+    const userData = users.map((user) => ({
+      id: user.id,
+      username: user.username,
+      realtion: user.relation,
+      letterContent: user.letter.deltaContent,
+      photo: user.photos
+    }))
+    return {
+      userData,
+      total,
+      page,
+      limit
+    }
+  }
 }
 
 

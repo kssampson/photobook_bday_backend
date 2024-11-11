@@ -79,4 +79,22 @@ export class AuthController {
     const id = req.user.sub;
     return await this.userService.getLetter(id);
   }
+
+  @UseGuards(AuthGuard)
+  @Get('get-submissions')
+  async getSubmissions(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Request() req
+  ) {
+    const id = req.user.sub;
+    const result = await this.userService.getSubmissions(page, limit);
+    return {
+      submissions: result.userData,
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      hasMore: result.page * result.limit < result.total
+    }
+  }
 }
