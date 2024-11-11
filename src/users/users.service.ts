@@ -252,13 +252,18 @@ export class UsersService {
       relations: ['photos', 'letter']
     })
 
-    const userData = users.map((user) => ({
-      id: user.id,
-      username: user.username,
-      realtion: user.relation,
-      letterContent: user.letter.deltaContent,
-      photo: user.photos
-    }))
+    const userData = users.map((user) => {
+      const deltaContent = user.letter ? (user.letter.deltaContent || null) : null;
+
+      return {
+        id: user.id,
+        username: user.username,
+        realtion: user.relation,
+        letterContent: user.letter.deltaContent,
+        photo: user.photos
+      }
+    });
+
     return {
       userData,
       total,
